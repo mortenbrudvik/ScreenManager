@@ -8,5 +8,6 @@ namespace ApplicationCore.Interfaces
         event EventHandler Changed;
      
         IReadOnlyCollection<IScreen> GetAll();
+        IScreen GetPrimary();
     }
 }

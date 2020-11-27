@@ -7,11 +7,11 @@ using Microsoft.Win32;
 
 namespace Infrastructure.Services
 {
-    public class ScreenService : IScreenService, IDisposable
+    public class ScreenManager : IScreenManager, IDisposable
     {
         public event EventHandler Changed;
 
-        public ScreenService()
+        public ScreenManager()
         {
             SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
         }
@@ -19,6 +19,11 @@ namespace Infrastructure.Services
         public IReadOnlyCollection<IScreen> GetAll() => Screen.AllScreens.
             Select(screen => new ScreenWrapper(screen)).
             Cast<IScreen>().ToList();
+
+        public IScreen GetPrimary()
+        {
+            return GetAll().SingleOrDefault(screen => screen.IsPrimary);
+        }
 
         private void SystemEvents_DisplaySettingsChanged(object? sender, EventArgs e)
         {

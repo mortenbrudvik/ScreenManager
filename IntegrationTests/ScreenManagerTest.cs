@@ -8,11 +8,11 @@ using Xunit.Abstractions;
 
 namespace IntegrationTests
 {
-    public class ScreenServiceTest
+    public class ScreenManagerTest
     {
         private readonly ITestOutputHelper _output;
 
-        public ScreenServiceTest(ITestOutputHelper output)
+        public ScreenManagerTest(ITestOutputHelper output)
         {
             _output = output;
         }
@@ -20,8 +20,8 @@ namespace IntegrationTests
         [Fact]
         public void GetScreens_ShouldReturnAtLeastOne()
         {
-            var service = new ScreenService();
-            var screens = service.GetAll();
+            var manager = new ScreenManager();
+            var screens = manager.GetAll();
 
             screens.ToList().ForEach(screen => _output.WriteLine(screen.ToString()));
             
@@ -31,17 +31,26 @@ namespace IntegrationTests
         [Fact]
         public void GetScreens_OneScreenShouldBePrimary()
         {
-            var service = new ScreenService();
-            var screens = service.GetAll();
+            var manager = new ScreenManager();
+            var screens = manager.GetAll();
             
             screens.ShouldContain(screen => screen.IsPrimary, 1);
         }
 
         [Fact]
+        public void GetPrimary_ShouldReturnPrimaryScreen()
+        {
+            var manager = new ScreenManager();
+            var primary = manager.GetPrimary();
+
+            primary.IsPrimary.ShouldBeTrue();
+        }
+
+        [Fact]
         public void Resolutions_ShouldReturnAtLeastOne()
         {
-            var service = new ScreenService();
-            var resolutions = service.GetAll()
+            var manager = new ScreenManager();
+            var resolutions = manager.GetAll()
                 .Single(screen=>screen.IsPrimary)
                 .GetResolutions().ToList();
 
@@ -53,12 +62,12 @@ namespace IntegrationTests
         [Fact]
         public void ScreensChanged_ShouldFire_WhenScreenResolutionChanges()
         {
-            var service = new ScreenService();
+            var manager = new ScreenManager();
             var hasChanged = false;
 
-            service.Changed += (sender, args) => { hasChanged = true; };
+            manager.Changed += (sender, args) => { hasChanged = true; };
 
-            var primaryScreen = service.GetAll().Single(screen => screen.IsPrimary);
+            var primaryScreen = manager.GetAll().Single(screen => screen.IsPrimary);
             var displayName = primaryScreen.Name;
             var oldResolution = primaryScreen.Resolution;
             var newResolution = primaryScreen.GetResolutions().OrderByDescending(screen => screen).Skip(1).FirstOrDefault();
@@ -68,7 +77,7 @@ namespace IntegrationTests
 
             Thread.Sleep(1000);
 
-            hasChanged.ShouldBe(true);
+            hasChanged.ShouldBeTrue();
 
             _output.WriteLine("Changing resolution back to: " + oldResolution);
             ScreenUtils.ChangeResolution(displayName, oldResolution);
