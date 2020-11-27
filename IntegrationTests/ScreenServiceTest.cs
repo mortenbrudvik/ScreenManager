@@ -51,13 +51,13 @@ namespace IntegrationTests
             var displayName = primaryScreen.Name;
             var newResolution = primaryScreen.Resolutions.OrderByDescending(screen => screen).Skip(1).FirstOrDefault();
 
-            ScreenUtils.ChangeResolution(displayName, out var oldResolution, new Size(newResolution.Width, newResolution.Height), false);
+            ScreenUtils.ChangeResolution(displayName, out var oldResolution, new Size(newResolution.Width, newResolution.Height));
 
             Thread.Sleep(1000);
 
             hasChanged.ShouldBe(hasChanged);
 
-            ScreenUtils.ChangeResolution(displayName, out var _, new Size(oldResolution.Width, oldResolution.Height), false);
+            ScreenUtils.ChangeResolution(displayName, out var _, new Size(oldResolution.Width, oldResolution.Height));
         }
     }
 }
