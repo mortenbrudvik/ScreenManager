@@ -9,20 +9,20 @@ namespace Infrastructure.Services
 {
     public class ScreenService : IScreenService
     {
-        public event EventHandler ScreensChanged;
+        public event EventHandler Changed;
 
         public ScreenService()
         {
             SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
         }
 
-        public IReadOnlyCollection<IScreen> GetScreens() => Screen.AllScreens.
+        public IReadOnlyCollection<IScreen> GetAll() => Screen.AllScreens.
             Select(screen => new ScreenWrapper(screen)).
             Cast<IScreen>().ToList();
 
         private void SystemEvents_DisplaySettingsChanged(object? sender, EventArgs e)
         {
-            ScreensChanged?.Invoke(this, EventArgs.Empty);
+            Changed?.Invoke(this, EventArgs.Empty);
         }
 
         ~ScreenService()

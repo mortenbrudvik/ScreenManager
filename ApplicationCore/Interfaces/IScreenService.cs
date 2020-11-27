@@ -5,8 +5,8 @@ namespace ApplicationCore.Interfaces
 {
     public interface IScreenService
     {
-        event EventHandler ScreensChanged;
+        event EventHandler Changed;
      
-        IReadOnlyCollection<IScreen> GetScreens();
+        IReadOnlyCollection<IScreen> GetAll();
     }
 }
