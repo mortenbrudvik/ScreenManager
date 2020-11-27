@@ -16,8 +16,9 @@ namespace Infrastructure
 
             if (!TryGetCurrentMode(deviceName, out var devMode))
                 return ChangeResult.Failed;
+            oldResolution = new Size(devMode.dmPelsWidth, devMode.dmPelsHeight);
 
-            return SetResolution(deviceName, devMode, out oldResolution, newResolution);
+            return SetResolution(deviceName, devMode, newResolution);
         }
 
         public enum ChangeResult
@@ -48,10 +49,8 @@ namespace Infrastructure
             return EnumDisplaySettings(deviceName, ENUM_CURRENT_SETTINGS, ref devMode);
         }
 
-        private static ChangeResult SetResolution(string deviceName, DEVMODE devMode, out Size oldResolution, Size newResolution)
+        private static ChangeResult SetResolution(string deviceName, DEVMODE devMode, Size newResolution)
         {
-            oldResolution = new Size(devMode.dmPelsWidth, devMode.dmPelsHeight);
-
             int result;
 
             if (newResolution != Size.Empty)
