@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using ApplicationCore.Exceptions;
 using ApplicationCore.Interfaces;
 using ApplicationCore.ValueObjects;
 using Infrastructure.Extensions;
@@ -22,18 +24,27 @@ namespace Infrastructure.Services
 
         public IReadOnlyCollection<Resolution> GetResolutions() 
         {
-            var resolutions = new HashSet<Resolution>();
-            var devMode = new DEVMODE { dmSize = (ushort)Marshal.SizeOf(typeof(DEVMODE)) };
-            uint index = 0;
-
-            while (User32.EnumDisplaySettingsEx(Name, index++, ref devMode, 0))
+            try
             {
-                resolutions.Add(new Resolution(devMode.dmPelsWidth, devMode.dmPelsHeight));
+                return ScreenUtils.GetResolutions(Name);
             }
-
-            return resolutions;
+            catch (Exception e)
+            {
+                throw new ScreenException($"An error occurred when retrieving resolutions for screen \"{Name}\"", e);
+            }
         }
 
+        public bool ChangeResolution(Resolution newResolution)
+        {
+            try
+            {
+                return ScreenUtils.ChangeResolution(Name, newResolution);
+            }
+            catch (Exception e)
+            {
+                throw new ScreenException($"An error occurred when trying to change screen resolution for screen \"{Name}\"", e);
+            }
+        }
         public override string ToString() => "[Bounds=" + Bounds + " WorkingArea=" + WorkingArea + " IsPrimary=" + IsPrimary + " Name=" + Name;
     }
 }

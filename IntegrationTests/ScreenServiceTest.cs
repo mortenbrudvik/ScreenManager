@@ -1,20 +1,29 @@
 using System.Linq;
 using System.Threading;
-using System.Windows;
 using Infrastructure;
 using Infrastructure.Services;
 using Shouldly;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace IntegrationTests
 {
     public class ScreenServiceTest
     {
+        private readonly ITestOutputHelper _output;
+
+        public ScreenServiceTest(ITestOutputHelper output)
+        {
+            _output = output;
+        }
+
         [Fact]
         public void GetScreens_ShouldReturnAtLeastOne()
         {
             var service = new ScreenService();
             var screens = service.GetAll();
+
+            screens.ToList().ForEach(screen => _output.WriteLine(screen.ToString()));
             
             screens.ShouldNotBeEmpty();
         }
@@ -36,6 +45,8 @@ namespace IntegrationTests
                 .Single(screen=>screen.IsPrimary)
                 .GetResolutions().ToList();
 
+            resolutions.ToList().ForEach(resolution => _output.WriteLine(resolution.ToString()));
+
             resolutions.ShouldNotBeEmpty();
         }
 
@@ -52,13 +63,15 @@ namespace IntegrationTests
             var oldResolution = primaryScreen.Resolution;
             var newResolution = primaryScreen.GetResolutions().OrderByDescending(screen => screen).Skip(1).FirstOrDefault();
 
-            ScreenUtils.ChangeResolution(displayName, new Size(newResolution.Width, newResolution.Height));
+            _output.WriteLine("Changing resolution to: " + newResolution);
+            ScreenUtils.ChangeResolution(displayName, newResolution);
 
             Thread.Sleep(1000);
 
-            hasChanged.ShouldBe(hasChanged);
+            hasChanged.ShouldBe(true);
 
-            ScreenUtils.ChangeResolution(displayName, new Size(oldResolution.Width, oldResolution.Height));
+            _output.WriteLine("Changing resolution back to: " + oldResolution);
+            ScreenUtils.ChangeResolution(displayName, oldResolution);
         }
     }
 }

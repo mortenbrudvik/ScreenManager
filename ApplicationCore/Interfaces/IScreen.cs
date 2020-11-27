@@ -12,5 +12,8 @@ namespace ApplicationCore.Interfaces
         Resolution Resolution { get; }
 
         IReadOnlyCollection<Resolution> GetResolutions();
+        bool ChangeResolution(Resolution newResolution);
+
+        string ToString();
     }
 }

@@ -1,74 +1,46 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using System.Windows;
+using ApplicationCore.ValueObjects;
+using Ardalis.GuardClauses;
 using PInvoke;
 
 namespace Infrastructure
 {
     public class ScreenUtils
     {
-        public static ChangeResult ChangeResolution(string deviceName, Size newResolution)
+        public static IReadOnlyCollection<Resolution> GetResolutions(string deviceName)
         {
-            if (string.IsNullOrEmpty(deviceName))
-                return ChangeResult.Failed;
+            var resolutions = new HashSet<Resolution>();
+            var devMode = new DEVMODE { dmSize = (ushort)Marshal.SizeOf(typeof(DEVMODE)) };
+            uint index = 0;
 
+            while (User32.EnumDisplaySettingsEx(deviceName, index++, ref devMode, 0))
+            {
+                resolutions.Add(new Resolution(devMode.dmPelsWidth, devMode.dmPelsHeight));
+            }
+
+            return resolutions;
+        }
+
+        public static bool ChangeResolution(string deviceName, Resolution newResolution)
+        {
+            Guard.Against.NullOrEmpty(deviceName, nameof(deviceName));
+           
             if (!TryGetCurrentMode(deviceName, out var devMode))
-                return ChangeResult.Failed;
+                return false;
 
-            return SetResolution(deviceName, devMode, newResolution);
+            devMode.dmPelsWidth = newResolution.Width;
+            devMode.dmPelsHeight = newResolution.Height;
+            var result = User32Ex.ChangeDisplaySettingsEx(deviceName, ref devMode, IntPtr.Zero, 0, IntPtr.Zero); 
+
+            return result == User32Ex.DISP_CHANGE_SUCCESSFUL;
         }
-
-        public enum ChangeResult
-        {
-            Success, RestartRequired, Failed
-        }
-
-        public const int ENUM_CURRENT_SETTINGS = -1; 
-
-        public const int DISP_CHANGE_SUCCESSFUL = 0;   
-        public const int DISP_CHANGE_RESTART = 1;      
-
-
-        [DllImport("User32.dll", EntryPoint = "ChangeDisplaySettingsExW", CharSet = CharSet.Unicode, SetLastError = true)]
-        public static extern int ChangeDisplaySettingsEx([MarshalAs(UnmanagedType.LPWStr)] string lpszDeviceName, IntPtr lpDevMode, IntPtr hwnd, uint dwflags, IntPtr lParam);
-
-        [DllImport("User32.dll", EntryPoint = "ChangeDisplaySettingsExW", CharSet = CharSet.Unicode, SetLastError = true)]
-        public static extern int ChangeDisplaySettingsEx([MarshalAs(UnmanagedType.LPWStr)] string lpszDeviceName, [In] ref DEVMODE lpDevMode, IntPtr hwnd, uint dwflags, IntPtr lParam);
-
-        [DllImport("User32.dll", EntryPoint = "EnumDisplaySettingsW", CharSet = CharSet.Unicode, SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool EnumDisplaySettings([MarshalAs(UnmanagedType.LPWStr)] string lpszDeviceName, int iModeNum, ref DEVMODE lpDevMode);
 
         private static bool TryGetCurrentMode(string deviceName, out DEVMODE devMode)
         {
             devMode = new DEVMODE { dmSize = (ushort)Marshal.SizeOf(typeof(DEVMODE)) };
-
-            return EnumDisplaySettings(deviceName, ENUM_CURRENT_SETTINGS, ref devMode);
-        }
-
-        private static ChangeResult SetResolution(string deviceName, DEVMODE devMode, Size newResolution)
-        {
-            int result;
-
-            if (newResolution != Size.Empty)
-            {
-                // Change the resolution.
-                devMode.dmPelsWidth = (uint)newResolution.Width;
-                devMode.dmPelsHeight = (uint)newResolution.Height;
-                result = ChangeDisplaySettingsEx(deviceName, ref devMode, IntPtr.Zero, 0, IntPtr.Zero); // 1 instead of 0 to save to registry
-            }
-            else
-            {
-                // Revert the resolution.
-                result = ChangeDisplaySettingsEx(deviceName, IntPtr.Zero, IntPtr.Zero, 0, IntPtr.Zero); 
-            }
-
-            return result switch
-            {
-                DISP_CHANGE_SUCCESSFUL => ChangeResult.Success,
-                DISP_CHANGE_RESTART => ChangeResult.RestartRequired,
-                _ => ChangeResult.Failed
-            };
+            return User32Ex.EnumDisplaySettings(deviceName, User32Ex.ENUM_CURRENT_SETTINGS, ref devMode);
         }
     }
 }
