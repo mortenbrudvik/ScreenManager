@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace ApplicationCore.Interfaces
 {
-    public interface IScreenService
+    public interface IScreenManager
     {
         event EventHandler Changed;
      
