@@ -26,26 +26,14 @@ namespace Infrastructure.Services
         {
             var resolutions = new HashSet<Resolution>();
             var devMode = new DEVMODE { dmSize = (ushort)Marshal.SizeOf(typeof(DEVMODE)) };
+            uint index = 0;
 
-            var index = 0;
-            while (EnumDisplaySettingsEx(Name, index++, ref devMode, 0))
+            while (User32.EnumDisplaySettingsEx(Name, index++, ref devMode, 0))
             {
-                var width = devMode.dmPelsWidth;
-                var height = devMode.dmPelsHeight;
-
-                resolutions.Add(new Resolution(width, height));
+                resolutions.Add(new Resolution(devMode.dmPelsWidth, devMode.dmPelsHeight));
             }
 
             return resolutions;
         }
-
-        [DllImport("User32.dll", EntryPoint = "EnumDisplaySettingsExW", CharSet = CharSet.Unicode, SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool EnumDisplaySettingsEx(
-            [MarshalAs(UnmanagedType.LPWStr)]
-            string lpszDeviceName,
-            int iModeNum,
-            ref DEVMODE lpDevMode,
-            uint dwFlags);
     }
 }

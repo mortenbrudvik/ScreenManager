@@ -14,7 +14,7 @@ namespace IntegrationTests
         public void GetScreens_ShouldReturnAtLeastOne()
         {
             var service = new ScreenService();
-            var screens = service.GetScreens();
+            var screens = service.GetAll();
             
             screens.ShouldNotBeEmpty();
         }
@@ -23,7 +23,7 @@ namespace IntegrationTests
         public void GetScreens_OneScreenShouldBePrimary()
         {
             var service = new ScreenService();
-            var screens = service.GetScreens();
+            var screens = service.GetAll();
             
             screens.ShouldContain(screen => screen.IsPrimary, 1);
         }
@@ -32,7 +32,7 @@ namespace IntegrationTests
         public void Resolutions_ShouldReturnAtLeastOne()
         {
             var service = new ScreenService();
-            var resolutions = service.GetScreens()
+            var resolutions = service.GetAll()
                 .Single(screen=>screen.IsPrimary)
                 .Resolutions.ToList();
 
@@ -45,9 +45,9 @@ namespace IntegrationTests
             var service = new ScreenService();
             var hasChanged = false;
 
-            service.ScreensChanged += (sender, args) => { hasChanged = true; };
+            service.Changed += (sender, args) => { hasChanged = true; };
 
-            var primaryScreen = service.GetScreens().Single(screen => screen.IsPrimary);
+            var primaryScreen = service.GetAll().Single(screen => screen.IsPrimary);
             var displayName = primaryScreen.Name;
             var newResolution = primaryScreen.Resolutions.OrderByDescending(screen => screen).Skip(1).FirstOrDefault();
 
