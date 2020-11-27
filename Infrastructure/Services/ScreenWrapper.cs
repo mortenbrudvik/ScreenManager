@@ -18,11 +18,9 @@ namespace Infrastructure.Services
         public Display WorkingArea => _screen.WorkingArea.ToDisplay();
         public Display Bounds => _screen.Bounds.ToDisplay();
         public bool IsPrimary => _screen.Primary;
-        public IReadOnlyCollection<Resolution> Resolutions => GetAllResolutions();
+        public Resolution Resolution => new Resolution(_screen.Bounds.Width, _screen.Bounds.Height);
 
-        public override string ToString() => "[Bounds=" + Bounds + " WorkingArea=" + WorkingArea + " IsPrimary=" + IsPrimary + " Name=" + Name;
-
-        private HashSet<Resolution> GetAllResolutions() 
+        public IReadOnlyCollection<Resolution> GetResolutions() 
         {
             var resolutions = new HashSet<Resolution>();
             var devMode = new DEVMODE { dmSize = (ushort)Marshal.SizeOf(typeof(DEVMODE)) };
@@ -35,5 +33,7 @@ namespace Infrastructure.Services
 
             return resolutions;
         }
+
+        public override string ToString() => "[Bounds=" + Bounds + " WorkingArea=" + WorkingArea + " IsPrimary=" + IsPrimary + " Name=" + Name;
     }
 }

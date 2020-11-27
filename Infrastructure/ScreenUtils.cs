@@ -7,16 +7,13 @@ namespace Infrastructure
 {
     public class ScreenUtils
     {
-        public static ChangeResult ChangeResolution(string deviceName, out Size oldResolution, Size newResolution)
+        public static ChangeResult ChangeResolution(string deviceName, Size newResolution)
         {
-            oldResolution = Size.Empty;
-
             if (string.IsNullOrEmpty(deviceName))
                 return ChangeResult.Failed;
 
             if (!TryGetCurrentMode(deviceName, out var devMode))
                 return ChangeResult.Failed;
-            oldResolution = new Size(devMode.dmPelsWidth, devMode.dmPelsHeight);
 
             return SetResolution(deviceName, devMode, newResolution);
         }

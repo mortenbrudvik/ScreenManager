@@ -8,8 +8,6 @@ namespace Console
     {
         static void Main(string[] args)
         {
-            WriteLine("Hello World!");
-
             var service = new ScreenService();
             service.Changed += (sender, eventArgs) => WriteLine("Display settings changes");
 

@@ -8,6 +8,7 @@ namespace ApplicationCore.ValueObjects
         public uint Height { get; }
 
         public Resolution(uint width, uint height) => (Width, Height) = (width, height); 
+        public Resolution(int width, int height) => (Width, Height) = ((uint)width, (uint)height); 
 
         public static bool operator ==(Resolution r1, Resolution r2) => r1.Width == r2.Width && r1.Height == r2.Height;
         public static bool operator !=(Resolution r1, Resolution r2) => !(r1 == r2);

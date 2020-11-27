@@ -9,6 +9,8 @@ namespace ApplicationCore.Interfaces
         Display WorkingArea { get; }
         Display Bounds { get; }
         bool IsPrimary { get; }
-        IReadOnlyCollection<Resolution> Resolutions { get; }
+        Resolution Resolution { get; }
+
+        IReadOnlyCollection<Resolution> GetResolutions();
     }
 }

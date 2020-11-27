@@ -34,7 +34,7 @@ namespace IntegrationTests
             var service = new ScreenService();
             var resolutions = service.GetAll()
                 .Single(screen=>screen.IsPrimary)
-                .Resolutions.ToList();
+                .GetResolutions().ToList();
 
             resolutions.ShouldNotBeEmpty();
         }
@@ -49,15 +49,16 @@ namespace IntegrationTests
 
             var primaryScreen = service.GetAll().Single(screen => screen.IsPrimary);
             var displayName = primaryScreen.Name;
-            var newResolution = primaryScreen.Resolutions.OrderByDescending(screen => screen).Skip(1).FirstOrDefault();
+            var oldResolution = primaryScreen.Resolution;
+            var newResolution = primaryScreen.GetResolutions().OrderByDescending(screen => screen).Skip(1).FirstOrDefault();
 
-            ScreenUtils.ChangeResolution(displayName, out var oldResolution, new Size(newResolution.Width, newResolution.Height));
+            ScreenUtils.ChangeResolution(displayName, new Size(newResolution.Width, newResolution.Height));
 
             Thread.Sleep(1000);
 
             hasChanged.ShouldBe(hasChanged);
 
-            ScreenUtils.ChangeResolution(displayName, out var _, new Size(oldResolution.Width, oldResolution.Height));
+            ScreenUtils.ChangeResolution(displayName, new Size(oldResolution.Width, oldResolution.Height));
         }
     }
 }

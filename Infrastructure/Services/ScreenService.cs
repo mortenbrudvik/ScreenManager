@@ -7,7 +7,7 @@ using Microsoft.Win32;
 
 namespace Infrastructure.Services
 {
-    public class ScreenService : IScreenService
+    public class ScreenService : IScreenService, IDisposable
     {
         public event EventHandler Changed;
 
@@ -25,7 +25,7 @@ namespace Infrastructure.Services
             Changed?.Invoke(this, EventArgs.Empty);
         }
 
-        ~ScreenService()
+        public void Dispose()
         {
             SystemEvents.DisplaySettingsChanged -= SystemEvents_DisplaySettingsChanged;
         }
