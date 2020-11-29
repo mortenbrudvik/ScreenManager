@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
+using ApplicationCore.Events;
 using ApplicationCore.Interfaces;
 using Microsoft.Win32;
 
@@ -9,7 +10,7 @@ namespace Infrastructure.Services
 {
     public class ScreenManager : IScreenManager, IDisposable
     {
-        public event EventHandler Changed;
+        public event EventHandler<ScreenEventArgs> Changed;
 
         public ScreenManager()
         {
@@ -27,7 +28,7 @@ namespace Infrastructure.Services
 
         private void SystemEvents_DisplaySettingsChanged(object? sender, EventArgs e)
         {
-            Changed?.Invoke(this, EventArgs.Empty);
+            Changed?.Invoke(this, new ScreenEventArgs(GetAll()));
         }
 
         public void Dispose()

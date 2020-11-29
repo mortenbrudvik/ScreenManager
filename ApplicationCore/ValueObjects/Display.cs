@@ -9,6 +9,8 @@ namespace ApplicationCore.ValueObjects
         public int Width { get; set; }
         public int Height { get; set; }
 
+        public Resolution Resolution => new Resolution(Width, Height);
+
         public Display(int x, int y, int width, int height) => (X, Y, Width, Height) = (x, y, width, height);
 
         public override readonly bool Equals(object? obj) => obj is Display && Equals((Display)obj);

@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using ApplicationCore.Interfaces;
 using Infrastructure;
 using Infrastructure.Services;
 using Shouldly;
@@ -60,12 +62,17 @@ namespace IntegrationTests
         }
 
         [Fact]
-        public void ScreensChanged_ShouldFire_WhenScreenResolutionChanges()
+        public void ScreensChanged_ShouldFireAndResolutionShowMatchChange_WhenScreenResolutionChanges()
         {
             var manager = new ScreenManager();
             var hasChanged = false;
+            IReadOnlyCollection<IScreen> updatedScreens = null;
 
-            manager.Changed += (sender, args) => { hasChanged = true; };
+            manager.Changed += (sender, args) =>
+            {
+                hasChanged = true;
+                updatedScreens = args.Screens;
+            };
 
             var primaryScreen = manager.GetAll().Single(screen => screen.IsPrimary);
             var displayName = primaryScreen.Name;
@@ -78,6 +85,8 @@ namespace IntegrationTests
             Thread.Sleep(1000);
 
             hasChanged.ShouldBeTrue();
+            updatedScreens.ShouldNotBeNull();
+            updatedScreens.ShouldContain(screen => screen.IsPrimary && screen.Resolution == newResolution, 1);
 
             _output.WriteLine("Changing resolution back to: " + oldResolution);
             ScreenUtils.ChangeResolution(displayName, oldResolution);

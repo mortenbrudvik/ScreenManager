@@ -24,7 +24,6 @@ namespace ApplicationCore.ValueObjects
 
         public void Deconstruct(out double width, out double height) =>  (width, height) = (Width, Height);
 
-
         public int CompareTo(Resolution other)
         {
             var widthComparison = Width.CompareTo(other.Width);
